@@ -1,0 +1,256 @@
+// Begin 2019 Princeton Hackathon code
+// Good Vibrations
+// Sam and Pat
+
+#include <opencv2/opencv.hpp>
+#include <opencv2/core.hpp>
+
+#include<iostream>
+
+#include <opencv2/core/core.hpp>
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/imgproc.hpp>
+#include <iostream>
+
+using namespace std;
+using namespace cv;
+
+#include <string>
+#include "opencv2/core/core.hpp"
+#include "opencv2/calib3d/calib3d.hpp"
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+//#include <opencv2/contrib/contrib.hpp>
+#include <stdio.h>
+
+cv::Mat pic;
+VideoCapture sam(0);
+/*
+// from opencv example
+struct StereoBMParams
+{
+	StereoBMParams(int _numDisparities = 64, int _SADWindowSize = 21)
+	{
+		preFilterType = StereoBM::PREFILTER_XSOBEL;
+		preFilterSize = 9;
+		preFilterCap = 31;
+		SADWindowSize = _SADWindowSize;
+		minDisparity = 0;
+		numDisparities = _numDisparities > 0 ? _numDisparities : 64;
+		textureThreshold = 10;
+		uniquenessRatio = 15;
+		speckleRange = speckleWindowSize = 0;
+		roi1 = roi2 = Rect(0, 0, 0, 0);
+		disp12MaxDiff = -1;
+		dispType = CV_16S;
+
+	}
+
+	int preFilterType;
+	int preFilterSize;
+	int preFilterCap;
+	int SADWindowSize;
+	int minDisparity;
+	int numDisparities;
+	int textureThreshold;
+	int uniquenessRatio;
+	int speckleRange;
+	int speckleWindowSize;
+	Rect roi1, roi2;
+	int disp12MaxDiff;
+	int dispType;
+
+};
+*/
+cv::Mat takePicture()
+{
+	while (!sam.isOpened()) 
+		sam.open(0);
+	
+	cv::Mat return_pic;
+	sam >> return_pic;
+	return return_pic;
+}
+
+
+int main()
+{
+
+	while (!sam.isOpened())
+	{
+		sam.open(0);
+	}
+	//VideoCapture sam(0);
+
+	
+	Mat image = Mat::zeros(300, 600, CV_8UC3);
+	//pic = takePicture();
+
+	/*
+	circle(image, Point(250, 150), 100, Scalar(0, 255, 128), -100);
+	circle(image, Point(350, 150), 100, Scalar(255, 255, 255), -100);
+	imshow("Display Window", image);
+	*/
+
+	Mat cam0, cam1;
+	Mat pic_gray;
+
+	pic = takePicture();
+	int pic_width = pic.cols;
+	int pic_height = pic.rows;
+	int pic_width_div_2 = pic_width / 2;
+	int pic_height_div_2 = pic_height / 2;
+
+	int x_pos = 0;
+	const int x_max = 5;
+	while (true)
+	{
+		// resets the counter
+		if (x_pos++ == x_max)
+			x_pos = 1;
+
+		pic = takePicture();
+
+
+		if (false)
+		{
+			int newX = pic.cols * 2;
+			int newY = pic.rows * 2;
+			Size s0(newX, newY);
+			resize(pic, pic, s0);
+		}
+
+		cv::Rect r0(0, 0, pic_width_div_2, pic_height);
+		cv::Rect r1(pic_width_div_2, 0, pic_width_div_2, pic_height);
+					
+		// fills in pic_gray, cam0, and cam1
+		cvtColor(pic, pic_gray, COLOR_RGB2GRAY);
+		//cam0 = pic_gray(r0);
+		//cam1 = pic_gray(r1);
+		
+		cam0 = pic(r0);
+		cam1 = pic(r1);
+		
+		
+		const int b_d = 30;
+		int midPoint_x = cam0.cols / 2;
+		int midPoint_y = cam0.rows / 2;
+		
+		//circle(cam0, Point(midPoint_x, midPoint_y), 20, Scalar(255, 255, 255), 5);
+
+		Rect drawThis(midPoint_x - b_d / 2, midPoint_y - b_d / 2, b_d, b_d);
+		//Rect drawThis((midPoint_x - b_d / 2)*(x_pos/x_max), (midPoint_y - b_d / 2), b_d, b_d);
+
+		cv::Scalar woo = Scalar(255, 255, 255);
+		Scalar hey = cam0.at<uchar>(Point(midPoint_x, midPoint_y));
+
+		const int b_d_HALF = b_d / 2;
+		/*
+		cv::Rect r_box0((cam0.cols / 2 - b_d_HALF), (cam0.rows / 2 - b_d_HALF), b_d, b_d);
+		cv::Rect r_box1((cam1.cols / 2 - b_d_HALF), (cam1.rows / 2 - b_d_HALF), b_d, b_d);
+		*/
+
+		cv::Rect r_box0((cam0.cols / 2 - b_d_HALF), (cam0.rows / 2 - b_d_HALF), b_d, b_d);
+		cv::Rect r_box1((cam1.cols / 2 - b_d_HALF), (cam1.rows / 2 - b_d_HALF), b_d, b_d);
+		
+		Mat m_box0 = cam0(drawThis);
+
+		Mat result;
+		const int method_chosen = 4; // 4
+		matchTemplate(cam1, m_box0, result, 1);
+		
+		//normalize(result, result, 0, 1, NORM_MINMAX, -1, Mat());
+		//findHomography(m_box0, cam1, result);
+
+		double minVal; double maxVal; Point minLoc; Point maxLoc;
+		Point matchLoc;
+
+		minMaxLoc(result, &minVal, &maxVal, &minLoc, &maxLoc, Mat());
+		matchLoc = minLoc;
+
+		//rectangle(result, matchLoc, Point(matchLoc.x + templ.cols, matchLoc.y + templ.rows), Scalar::all(0), 2, 8, 0);
+		//rectangle(cam1,)
+		//imshow(image_window, img_display);
+		//imshow(result_window, result);
+
+		
+
+		cv::Rect black_box(matchLoc, Point(matchLoc.x + m_box0.cols, matchLoc.y + m_box0.rows));
+		Mat whats_boxed = cam1(black_box);
+		
+		const int resize_scalar = 12;
+		Size s0(m_box0.cols * resize_scalar, m_box0.rows * resize_scalar);
+		
+
+		//const int resize_scalar = 12;
+		rectangle(cam1, matchLoc, Point(matchLoc.x + m_box0.cols, matchLoc.y + m_box0.rows), Scalar::all(0), 2, 8, 0);
+		rectangle(pic, drawThis, woo, 1);
+	
+
+		
+		//imshow("Black and White", pic_gray);
+		imshow("cam0", cam0);
+		imshow("cam1", cam1);
+
+
+		resize(whats_boxed, whats_boxed, s0);
+		imshow("whats_boxed", whats_boxed);
+		resize(m_box0, m_box0, s0);
+		imshow("m_box0", m_box0);
+
+		//char result_string[99];
+		std::string distance_string = std::to_string(matchLoc.x);
+		//cv::putText(image, distance_string, Point(5, result.rows - 50), FONT_HERSHEY_COMPLEX_SMALL, 2, cv::Scalar(0, 0, 255), 1);cv::putText(image, distance_string, Point(5, result.rows-50), FONT_HERSHEY_COMPLEX_SMALL, 2, cv::Scalar(0, 0, 255), 1);
+		image = Mat::zeros(300, 600, CV_8UC3);
+		cv::putText(image, distance_string, Point(5, 40), FONT_HERSHEY_COMPLEX_SMALL, 2, cv::Scalar(0, 0, 255), 1);
+		imshow("Original Feed", pic);
+		imshow("Debug output:", image);
+		resize(result, result, s0);
+		imshow("mT_output", result);
+
+		if ((waitKey(10) & 0xFF) == 27)
+		{
+			sam.release();
+			destroyAllWindows();
+			return 0;
+		}
+
+	}
+	waitKey(0);
+
+	return 0;
+	
+
+	//VideoCapture cam;
+
+	/*
+	if (cam.open(0) == 0)
+		return -1;
+	*/
+
+	VideoCapture sam(0);
+	
+	while (1 == 1)
+	{
+		/*
+
+		//	Creates a mat to hold the current frame...
+		Mat current_frame;
+		//	...Which is then filled in from cam
+		sam >> current_frame;
+
+		//	creates a window that shows current_frame
+		imshow("hi", current_frame);
+
+		// close window when Escape is held
+		if (waitKey(10) == 27)
+			break;
+		
+		*/
+
+		//Mat sam = cv2
+
+	}
+
+
+} // end int main()
