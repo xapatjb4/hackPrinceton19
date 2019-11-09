@@ -1,0 +1,11 @@
+{
+  "build": "faaslang",
+  "name": "waduphaitian/batNotif",
+  "version": "0.0.0",
+  "timeout": 10000,
+  "personalize": {
+    "keys": [],
+    "user": []
+  },
+  "events": []
+}
