@@ -1,15 +1,9 @@
-/**
-* A basic Hello World function
-* @param {string} name Who you're saying hello to
-* @returns {string}
-*/
 const lib = require('lib')({token: process.env.STDLIB_SECRET_TOKEN});
-//const lib = require('lib')({token: "tok_dev_W5mbaAJHdKbCkHVaejgt6kEmUSSR6x9rwAZRoaEYrtLQVm8rns8Kr5mBC92Trduq"});
 /**
 * An HTTP endpoint that acts as a webhook for HTTP or Webhook request event
 * @returns {object} result The result of your workflow steps
 */
-module.exports = async (name = 'world', email = '', context) => {
+module.exports = async (name = "world", email = "5089816164@txt.att.net",context) => {
 
   // Prepare workflow object to store API responses
 
@@ -21,17 +15,13 @@ module.exports = async (name = 'world', email = '', context) => {
 
   result.step1 = {};
   result.step1.message = await lib.gmail.messages['@0.1.6'].create({
-    to: email, // required
-    subject: "wadup",
+    to: email,
+    subject: `Battery at 50%`,
     cc: null,
     bcc: null,
-    text: "Hi "+name,
+    text: "Hi "+ name + ", this is to inform you that your glass batteries are at 50%",
     html: null
   });
 
   return result;
 };
-// module.exports = async (name = 'world', email = '', context) => {
-//     return `hello ${name}`;
-//   };
-  

@@ -9,7 +9,7 @@ const lib = require('lib')({token: process.env.STDLIB_SECRET_TOKEN});
 * An HTTP endpoint that acts as a webhook for HTTP or Webhook request event
 * @returns {object} result The result of your workflow steps
 */
-module.exports = async (name = 'world', email = '', context) => {
+module.exports = async (email = '', subject = '', text = '',context) => {
 
   // Prepare workflow object to store API responses
 
@@ -22,16 +22,12 @@ module.exports = async (name = 'world', email = '', context) => {
   result.step1 = {};
   result.step1.message = await lib.gmail.messages['@0.1.6'].create({
     to: email, // required
-    subject: "wadup",
+    subject: subject,
     cc: null,
     bcc: null,
-    text: "Hi "+name,
+    text: text,
     html: null
   });
 
   return result;
 };
-// module.exports = async (name = 'world', email = '', context) => {
-//     return `hello ${name}`;
-//   };
-  

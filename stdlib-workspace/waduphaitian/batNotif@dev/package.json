@@ -1,0 +1,9 @@
+{
+  "name": "batNotif",
+  "description": "",
+  "author": "waduphaitian <xa.patjb4@gmail.com>",
+  "main": "functions/__main__.js",
+  "dependencies": {
+    "lib": "latest"
+  }
+}
